@@ -1,0 +1,31 @@
+services:
+  vllm-rocm:
+    build: .
+    container_name: vllm-rocm
+
+    devices:
+      - /dev/kfd
+      - /dev/dri
+
+    group_add:
+      - "44" # getent group video
+      - "992" # getent group render
+      
+
+    ipc: host
+    shm_size: "32gb"
+
+    environment:
+      - HIP_VISIBLE_DEVICES=0
+      - VLLM_WORKER_MULTIPROC_METHOD=spawn
+      - PYTORCH_HIP_ALLOC_CONF=expandable_segments:True
+
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+
+    working_dir: /app
+
+    stdin_open: true
+    tty: true
+
+    command: tail -f /dev/null
